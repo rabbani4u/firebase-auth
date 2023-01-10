@@ -22,6 +22,7 @@ function App() {
     isSignIn: false,
     name: "",
     email: "",
+    password: "",
     photo: "",
   });
   const provider = new GoogleAuthProvider();
@@ -67,18 +68,22 @@ function App() {
         // An error happened.
       });
   };
-  const handleChanged = event => {
-    //console.log(event.target.value);
+  const handleBlur = event => {
+    let isFormValid = true;
     if (event.target.name === "email") {
-      const isEmailValid = /\S+@\S+\.\S+/.test(event.target.value);
-      console.log(isEmailValid);
+      isFormValid = /\S+@\S+\.\S+/.test(event.target.value);
     }
     if (event.target.name === "password") {
       const isPasswordValid =
         /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/.test(
           event.target.value
         );
-      console.log(isPasswordValid);
+      isFormValid = isPasswordValid;
+    }
+    if (isFormValid) {
+      const newUserInfo = { ...user };
+      newUserInfo[event.target.name] = event.target.value;
+      setUser(newUserInfo);
     }
   };
   const handleSubmit = () => {};
@@ -105,12 +110,23 @@ function App() {
         <hr />
         <h2>Your Own Authentication</h2>
       </div>
-
+      <p>Name: {user.name}</p>
+      <p>Email: {user.email}</p>
+      <p>Password: {user.password}</p>
       <form onSubmit={handleSubmit}>
+        <input
+          onBlur={handleBlur}
+          type="name"
+          name="name"
+          placeholder="Your Name"
+          required
+        />
+        <br />
+
         <input
           type="text"
           name="email"
-          onBlur={handleChanged}
+          onBlur={handleBlur}
           placeholder="Enter Your Email"
           required
         />
@@ -118,7 +134,7 @@ function App() {
         <input
           type="password"
           name="password"
-          onBlur={handleChanged}
+          onBlur={handleBlur}
           placeholder="Enter Your Password"
           required
         />
