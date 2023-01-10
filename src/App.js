@@ -67,6 +67,21 @@ function App() {
         // An error happened.
       });
   };
+  const handleChanged = event => {
+    //console.log(event.target.value);
+    if (event.target.name === "email") {
+      const isEmailValid = /\S+@\S+\.\S+/.test(event.target.value);
+      console.log(isEmailValid);
+    }
+    if (event.target.name === "password") {
+      const isPasswordValid =
+        /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/.test(
+          event.target.value
+        );
+      console.log(isPasswordValid);
+    }
+  };
+  const handleSubmit = () => {};
 
   return (
     <div className="App">
@@ -86,6 +101,30 @@ function App() {
           <img src={user.photo} alt="" />
         </div>
       )}
+      <div style={{ "margin-bottom": "20px" }}>
+        <hr />
+        <h2>Your Own Authentication</h2>
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="email"
+          onBlur={handleChanged}
+          placeholder="Enter Your Email"
+          required
+        />
+        <br />
+        <input
+          type="password"
+          name="password"
+          onBlur={handleChanged}
+          placeholder="Enter Your Password"
+          required
+        />
+        <br />
+        <input type="submit" value="Submit" />
+      </form>
     </div>
   );
 }
