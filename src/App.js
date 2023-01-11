@@ -4,6 +4,7 @@ import { initializeApp } from "firebase/app";
 import { GoogleAuthProvider } from "firebase/auth";
 import { getAuth, signInWithPopup } from "firebase/auth";
 import { signOut } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 // TODO: Replace the following with your app's Firebase project configuration
 const firebaseConfig = {
@@ -24,6 +25,7 @@ function App() {
     email: "",
     password: "",
     photo: "",
+    success: true,
   });
   const provider = new GoogleAuthProvider();
 
@@ -86,7 +88,25 @@ function App() {
       setUser(newUserInfo);
     }
   };
-  const handleSubmit = () => {};
+  const handleSubmit = event => {
+    if (user.email && user.password) {
+      const auth = getAuth();
+      createUserWithEmailAndPassword(auth, user.email, user.password)
+        .then(res => {
+          const newUserInfo = { ...user };
+          newUserInfo.error = "";
+          newUserInfo.success = true;
+          setUser(newUserInfo);
+        })
+        .catch(error => {
+          const newUserInfo = { ...user };
+          newUserInfo.error = error.message;
+          newUserInfo.success = false;
+          setUser(newUserInfo);
+        });
+    }
+    event.preventDefault();
+  };
 
   return (
     <div className="App">
@@ -110,9 +130,7 @@ function App() {
         <hr />
         <h2>Your Own Authentication</h2>
       </div>
-      <p>Name: {user.name}</p>
-      <p>Email: {user.email}</p>
-      <p>Password: {user.password}</p>
+
       <form onSubmit={handleSubmit}>
         <input
           onBlur={handleBlur}
@@ -141,6 +159,10 @@ function App() {
         <br />
         <input type="submit" value="Submit" />
       </form>
+      <p style={{ color: "red" }}>{user.error}</p>
+      {user.success && (
+        <p style={{ color: "green" }}>User register successfully</p>
+      )}
     </div>
   );
 }
