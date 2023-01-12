@@ -8,6 +8,7 @@ import {
   signInWithPopup,
   signOut,
   createUserWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
 
 // TODO: Replace the following with your app's Firebase project configuration
@@ -102,6 +103,7 @@ function App() {
           newUserInfo.error = "";
           newUserInfo.success = true;
           setUser(newUserInfo);
+          updateUserName(user.name);
         })
         .catch(error => {
           const newUserInfo = { ...user };
@@ -118,6 +120,7 @@ function App() {
           newUserInfo.error = "";
           newUserInfo.success = true;
           setUser(newUserInfo);
+          console.log("sign in user", res.user);
         })
         .catch(error => {
           const newUserInfo = { ...user };
@@ -128,6 +131,19 @@ function App() {
     }
     event.preventDefault();
   };
+
+  function updateUserName(name) {
+    const auth = getAuth();
+    updateProfile(auth.currentUser, {
+      displayName: name,
+    })
+      .then(() => {
+        console.log("User Updated Successfully");
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
 
   return (
     <div className="App">
@@ -186,7 +202,7 @@ function App() {
           required
         />
         <br />
-        <input type="submit" value="Submit" />
+        <input type="submit" value={newUser ? "Sign Up" : "Log In"} />
       </form>
       <p style={{ color: "red" }}>{user.error}</p>
       {user.success && (
