@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import "./App.css";
 import { initializeApp } from "firebase/app";
-import { GoogleAuthProvider } from "firebase/auth";
-import { getAuth, signInWithPopup } from "firebase/auth";
-import { signOut } from "firebase/auth";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  getAuth,
+  signInWithPopup,
+  signOut,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
 
 // TODO: Replace the following with your app's Firebase project configuration
 const firebaseConfig = {
@@ -19,13 +23,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 function App() {
+  const [newUser, setNewUser] = useState(false);
   const [user, setUser] = useState({
     isSignIn: false,
     name: "",
     email: "",
     password: "",
     photo: "",
-    success: true,
   });
   const provider = new GoogleAuthProvider();
 
@@ -63,6 +67,7 @@ function App() {
           name: "",
           email: "",
           photo: "",
+          success: true,
         };
         setUser(signedOutUser);
       })
@@ -89,9 +94,25 @@ function App() {
     }
   };
   const handleSubmit = event => {
-    if (user.email && user.password) {
+    if (newUser && user.email && user.password) {
       const auth = getAuth();
       createUserWithEmailAndPassword(auth, user.email, user.password)
+        .then(res => {
+          const newUserInfo = { ...user };
+          newUserInfo.error = "";
+          newUserInfo.success = true;
+          setUser(newUserInfo);
+        })
+        .catch(error => {
+          const newUserInfo = { ...user };
+          newUserInfo.error = error.message;
+          newUserInfo.success = false;
+          setUser(newUserInfo);
+        });
+    }
+    if (!newUser && user.email && user.password) {
+      const auth = getAuth();
+      signInWithEmailAndPassword(auth, user.email, user.password)
         .then(res => {
           const newUserInfo = { ...user };
           newUserInfo.error = "";
@@ -131,16 +152,24 @@ function App() {
         <h2>Your Own Authentication</h2>
       </div>
 
+      <input
+        type="checkbox"
+        onChange={() => setNewUser(!newUser)}
+        name="newUser"
+      />
+      <label htmlFor="newUser">New User SignIn</label>
       <form onSubmit={handleSubmit}>
-        <input
-          onBlur={handleBlur}
-          type="name"
-          name="name"
-          placeholder="Your Name"
-          required
-        />
-        <br />
+        {newUser && (
+          <input
+            onBlur={handleBlur}
+            type="name"
+            name="name"
+            placeholder="Your Name"
+            required
+          />
+        )}
 
+        <br />
         <input
           type="text"
           name="email"
@@ -161,7 +190,9 @@ function App() {
       </form>
       <p style={{ color: "red" }}>{user.error}</p>
       {user.success && (
-        <p style={{ color: "green" }}>User register successfully</p>
+        <p style={{ color: "white" }}>
+          User {newUser ? "register" : "LogIn"} successfuly
+        </p>
       )}
     </div>
   );
